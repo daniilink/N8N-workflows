@@ -1,0 +1,1076 @@
+{
+  "name": "TG Notifications Clients",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "UNREAD"
+          ],
+          "q": "subject: CHANGE_IT "
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        80
+      ],
+      "id": "7eaf890b-d720-49a9-9114-b044da2b7323",
+      "name": "Gmail Trigger",
+      "notesInFlow": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AGQ3GnqUVnX3hV2E",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "472124645",
+        "message": "=⚠️ Error parse email!\n\n{{ $('Code').item.json.errorMessage }}\n\nInput missing value:",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "=name:",
+              "defaultValue": "={{ $('Code').item.json.name }}"
+            },
+            {
+              "fieldLabel": "=sender:",
+              "defaultValue": "={{ $('Code').item.json.sender }}"
+            },
+            {
+              "fieldLabel": "=amount:",
+              "defaultValue": "={{ $('Code').item.json.amount }}"
+            },
+            {
+              "fieldLabel": "=transactionId:",
+              "defaultValue": "={{ $('Code').item.json.transactionId }}"
+            },
+            {
+              "fieldLabel": "=date:",
+              "defaultValue": "={{ $('Code').item.json.date }}"
+            },
+            {
+              "fieldLabel": "email:",
+              "defaultValue": "={{ $('Code').item.json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        480
+      ],
+      "id": "d7f18c8c-8cc0-43c6-9ec7-35dbf5f53aea",
+      "name": "Telegram",
+      "webhookId": "394d54ea-6b4e-4bd2-8849-21475da8af76",
+      "credentials": {
+        "telegramApi": {
+          "id": "j2xih7F1P086Grw8",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/YOUR_BOT_TOKEN/sendMessage",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Get row(s) in sheet').item.json.ID }}"
+            },
+            {
+              "name": "=text",
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Gmail Trigger').first().json.id }}\">Screenshot PNG🧾</a>"
+            },
+            {
+              "name": "parse_mode",
+              "value": "html"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        48
+      ],
+      "id": "38720df8-2cee-4cb9-a094-a963b0814efd",
+      "name": "Send Telegram Notification",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/YOUR_BOT_TOKEN/sendMessage",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Get row(s) in sheet1').item.json.ID }}"
+            },
+            {
+              "name": "=text",
+              "value": "=📧 New Email to <code>{{ $('Telegram').item.json.data['email:'] }}</code>\nHello, <code>{{ $('Telegram').item.json.data['name:'] }}</code>\nAccept your <code>{{ $('Telegram').item.json.data['amount:'] }}</code> from <code>{{ $('Telegram').item.json.data['sender:'] }}</code>\nTransaction ID: <code>{{ $('Telegram').item.json.data['transactionId:'] }}</code>\nTransaction date: <code>{{ $('Telegram').item.json.data['date:'] }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Gmail Trigger').item.json.id }}\">Screenshot PNG🧾</a>"
+            },
+            {
+              "name": "parse_mode",
+              "value": "html"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1104,
+        464
+      ],
+      "id": "3cf839d8-94c0-448c-9493-1ec7dff5eb0f",
+      "name": "Send Telegram Notification1",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 57131419,
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Emails",
+              "lookupValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        64
+      ],
+      "id": "0de86bab-76f5-4023-a495-0e7109ccbfa3",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Mw6O8vqhmkh2HA7n",
+          "name": "gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailText = $json[\"text\"];\n\nlet nameMatch = emailText.match(/^([A-Z\\s]+), YOU RECEIVED/i);\nlet recipientName = nameMatch\n  ? nameMatch[1].split(' ').map(n => n.charAt(0) + n.slice(1).toLowerCase()).join(' ')\n  : null;\n\n// Обновлено: теперь работает с $ и €\nlet amountMatch = emailText.match(/YOU RECEIVED\\s*([$€])([\\d,]+\\.\\d{2})\\s*([A-Z]{3})/i);\nlet amount = amountMatch \n  ? amountMatch[1] + amountMatch[2] + \" \" + amountMatch[3] \n  : null;\n\nlet senderMatch = emailText.match(/Accept your .* from ([^\\n]+)/i);\nlet sender = senderMatch ? senderMatch[1].trim() : null;\n\nlet txnMatch = emailText.match(/Transaction ID\\s*([A-Z0-9]+)/i);\nlet txnId = txnMatch ? txnMatch[1] : null;\n\nlet dateMatch = emailText.match(/Transaction date\\s*([\\d\\sA-Za-z]+)/i);\nlet txnDate = dateMatch ? dateMatch[1].trim() : null;\n\n// ===== EMAIL из Received =====\nconst receivedHeader = $json.headers.received || \"\";\n// берём email строго после \"for <...>\"\nconst emailMatch = receivedHeader.match(/for\\s*<([^>]+)>/i);\nconst extractedEmail = emailMatch ? emailMatch[1] : null;\n\n// ===== ВРЕМЯ =====\nlet fullDateTime = null;\nif (receivedHeader) {\n  const dateMatchHeader = receivedHeader.match(/(\\w+, \\d+ \\w+ \\d+ \\d+:\\d+:\\d+ [+-]\\d{4})/);\n  if (dateMatchHeader) {\n    const dateFromEmail = new Date(dateMatchHeader[1]);\n    const kievTime = new Date(\n      dateFromEmail.toLocaleString(\"en-US\", { timeZone: \"Europe/Kiev\" })\n    );\n    const hours = String(kievTime.getHours()).padStart(2, \"0\");\n    const minutes = String(kievTime.getMinutes()).padStart(2, \"0\");\n    const seconds = String(kievTime.getSeconds()).padStart(2, \"0\");\n    const timeString = `${hours}:${minutes}:${seconds}`;\n    fullDateTime = txnDate ? `${txnDate} at ${timeString}` : null;\n  }\n}\n\n// ===== ПРОВЕРКИ =====\nconst errors = [];\nif (!recipientName) errors.push(\"name:\");\nif (!sender) errors.push(\"sender:\");\nif (!amount) errors.push(\"amount:\");\nif (!txnId) errors.push(\"txID:\");\nif (!txnDate) errors.push(\"date:\");\nif (!extractedEmail) errors.push(\"email:\");\n\nlet gmailId = $json[\"id\"] || null;\nconst isComplete = errors.length === 0;\n\nreturn {\n  name: recipientName,\n  sender: sender,\n  amount: amount,\n  transactionId: txnId,\n  date: fullDateTime,\n  email: extractedEmail,\n  gmailId: gmailId,\n  isComplete: isComplete,\n  errors: errors,\n  errorMessage: errors.join(\"\\n\")\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        80
+      ],
+      "id": "a0c0c6a6-8ff0-4f1d-bae1-fac797ca77f3",
+      "name": "Code",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a4f9da7d-43e0-4bcc-bed3-92bf709bd417",
+              "leftValue": "={{ $json.errorMessage }}",
+              "rightValue": "errors",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        80
+      ],
+      "id": "710f3e7a-1b9b-4c8b-b567-17105d595403",
+      "name": "If error"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c8775324-567b-46cb-b864-0f0ed4aec770",
+              "leftValue": "={{ $json.ID }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        64
+      ],
+      "id": "d2896806-03f0-4cd1-aa8d-ae84d4d4654b",
+      "name": "Id Client"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "WORK",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 57131419,
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Emails",
+              "lookupValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        480
+      ],
+      "id": "8695cf3f-b69e-42a8-a2bb-b9a97b038507",
+      "name": "Get row(s) in sheet1",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Mw6O8vqhmkh2HA7n",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c8775324-567b-46cb-b864-0f0ed4aec770",
+              "leftValue": "={{ $('Get row(s) in sheet1').item.json.ID }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        480
+      ],
+      "id": "f0360d39-8186-46cd-beea-154db6f09723",
+      "name": "Id Client1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/YOUR_BOT_TOKEN/sendMessage",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Get row(s) in sheet').item.json.ID }}"
+            },
+            {
+              "name": "=text",
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
+            },
+            {
+              "name": "parse_mode",
+              "value": "html"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        112
+      ],
+      "id": "55953c23-4085-45e0-adfa-9696c0097cb4",
+      "name": "Send Telegram Notification2",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/YOUR_BOT_TOKEN/sendMessage",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Get row(s) in sheet1').item.json.ID }}"
+            },
+            {
+              "name": "=text",
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
+            },
+            {
+              "name": "parse_mode",
+              "value": "html"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        480
+      ],
+      "id": "913a636b-d823-49a5-9989-ff053ae28ece",
+      "name": "Send Telegram Notification3",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/YOUR_BOT_TOKEN/sendMessage",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Get row(s) in sheet1').item.json.ID }}"
+            },
+            {
+              "name": "=text",
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Gmail Trigger').first().json.id }}\">Screenshot PNG🧾</a>"
+            },
+            {
+              "name": "parse_mode",
+              "value": "html"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1552,
+        496
+      ],
+      "id": "18eaa564-168a-47a2-a70f-94db253935c4",
+      "name": "Send Telegram Notification4",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "cfzbYv522RWod5hb",
+          "mode": "list",
+          "cachedResultName": "data table",
+          "cachedResultUrl": "/projects/6Yxt97mRVorrsJ7i/datatables/cfzbYv522RWod5hb"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('If error').item.json.name }}",
+            "amount": "={{ $('If error').item.json.amount }}",
+            "sender": "={{ $('If error').item.json.sender }}",
+            "transactionId": "={{ $('If error').item.json.transactionId }}",
+            "email": "={{ $('If error').item.json.email }}",
+            "date": "={{ $('Code').item.json.date }}",
+            "Client": "=@{{ $json.result.chat.username }}",
+            "TelegramId": "={{ $json.result.chat.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "transactionId",
+              "displayName": "transactionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client",
+              "displayName": "Client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "TelegramId",
+              "displayName": "TelegramId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        96
+      ],
+      "id": "36f73378-30d0-4ff3-8fc8-6884d2b78455",
+      "name": "Insert row",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "\n**Monitors only new email with specific label.**\n*every 1 min*",
+        "height": 112,
+        "width": 150,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        96
+      ],
+      "id": "0f4c729b-fbb0-4479-8874-2d8c73e771b2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Extracts necessary objects from raw Email.\nIf not find - return error for this object to input manually",
+        "height": 144,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        208
+      ],
+      "id": "8aaa50a8-0a78-45e1-b298-d67e216895f1",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Validates the parsing results; if any objects(like amount or email) are missing, it routes to input only error objects manually.",
+        "height": 128,
+        "width": 198,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -48
+      ],
+      "id": "ea87f9a4-035b-4439-a7cb-0ce6d776b16e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Searches the \"Clients\" tab in the GSheet\" to find a matching row based on the extracted email address",
+        "height": 144,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -80
+      ],
+      "id": "171e2270-6c41-4373-b78b-96e64426dc64",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "If there are no emails linked to the client - do nothing",
+        "height": 96,
+        "width": 150,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "a082cf99-3a41-421b-8eba-c439b53f07f6",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "If the automated parser fails, sends a custom form to the admin to manually enter missed objects.",
+        "height": 128,
+        "width": 160,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        352
+      ],
+      "id": "851151a1-ebe4-4a07-bff8-6597aeaff233",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "cfzbYv522RWod5hb",
+          "mode": "list",
+          "cachedResultName": "data table",
+          "cachedResultUrl": "/projects/6Yxt97mRVorrsJ7i/datatables/cfzbYv522RWod5hb"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('Id Client1').item.json.data['name:'] }}",
+            "amount": "={{ $('Id Client1').item.json.data['amount:'] }}",
+            "sender": "={{ $('Id Client1').item.json.data['sender:'] }}",
+            "transactionId": "={{ $('Id Client1').item.json.data['transactionId:'] }}",
+            "email": "={{ $('Id Client1').item.json.data['email:'] }}",
+            "date": "={{ $('Code').item.json.date }}",
+            "Client": "=@{{ $json.result.chat.username }}",
+            "TelegramId": "={{ $json.result.chat.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "transactionId",
+              "displayName": "transactionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client",
+              "displayName": "Client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "TelegramId",
+              "displayName": "TelegramId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        320
+      ],
+      "id": "cee991b3-0ae2-471c-b55e-77a61ffd831d",
+      "name": "Insert row with manual input",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "Insert to Any DataBase\\CRM",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        224
+      ],
+      "id": "6395e57a-c003-4bce-8b7b-9fbef8d49865",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "Actually sends parsed and formatted notification to client",
+        "height": 112,
+        "width": 150,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -64
+      ],
+      "id": "7e94fa6f-1876-482d-91be-e8acb9dd4bbb",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "Part of error handling for stability in n8n",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        16
+      ],
+      "id": "a261128f-8cda-4cdf-acf9-d3f44fafc77b",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Id Client1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Notification": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Telegram Notification2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Id Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If error": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Id Client": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Id Client1": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send Telegram Notification2": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Notification1": {
+      "main": [
+        [
+          {
+            "node": "Insert row with manual input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Telegram Notification3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Notification3": {
+      "main": [
+        [
+          {
+            "node": "Insert row with manual input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Telegram Notification4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Notification4": {
+      "main": [
+        [
+          {
+            "node": "Insert row with manual input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "ec337245-09bc-4546-aca1-1da55213036f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af95bafb77460a39a122b216b66473d6e1c59ced66c3bba1da34b6e626756ee1"
+  },
+  "id": "mAmKKB3VB2XVakSs",
+  "tags": []
+}
