@@ -5,7 +5,7 @@ A collection of professional n8n workflows for email processing, lead enrichment
 
 ## 📂 Repository Structure
 * **/PNG-By-MessageID**: Generates a PNG screenshot from a Gmail message HTML via Webhook.
-* **/TG-Notifications-Clients**: Automated parser for PayPal/Payment emails with Telegram alerts.
+* **/TG-Notifications-Clients**: Automated parser for Payment/Any Other emails with Telegram alerts.
 * **/Lead-Enrichment**: Advanced lead scoring and enrichment pipeline (HubSpot/Google Sheets).
 
 ## 🛠️ Requirements & Setup
