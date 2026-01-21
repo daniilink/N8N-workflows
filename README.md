@@ -12,9 +12,9 @@ A collection of professional n8n workflows for email processing, lead enrichment
 To use these workflows, you need:
 1. **n8n Instance**: Self-hosted (recommended) or Cloud.
 2. **Credentials**: You will need to configure your own:
-    * [Google OAuth2](https://console.cloud.google.com/) (Gmail & Sheets API)
-    * [Telegram Bot API](https://t.me/botfather)
-    * [HubSpot Access Token](https://developers.hubspot.com/) (for Lead Enrichment)
+    * [Google OAuth2](https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/?utm_source=n8n_app&utm_medium=credential_settings&utm_campaign=create_new_credentials_modal) (Gmail & Sheets API)
+    * [Telegram Bot API](https://docs.n8n.io/integrations/builtin/credentials/telegram/?utm_source=n8n_app&utm_medium=credential_settings&utm_campaign=create_new_credentials_modal)
+    * [HubSpot Access Token](https://docs.n8n.io/integrations/builtin/credentials/hubspot/?utm_source=n8n_app&utm_medium=credential_settings&utm_campaign=create_new_credentials_modal) (for Lead Enrichment)
 
 ## ⚠️ Self-Hosted vs Cloud
 > [!IMPORTANT]
