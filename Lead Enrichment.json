@@ -1,0 +1,385 @@
+{
+  "name": "Lead Enrichment - Final v4",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook/lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c70cbeea-d909-4eb4-983f-1131cfd0ca57",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        304
+      ],
+      "webhookId": "0bae78ae-8733-4cb1-aacf-86fe35760f48"
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = items[0].json;\nconst lead = data.body || data;\n\nreturn [{\n  json: {\n    email: lead.email || '',\n    company_name: lead.company_name || '',\n    linkedin_url: lead.linkedin_url || '',\n    timestamp: new Date().toISOString(),\n    valid: !!(lead.email && lead.company_name)\n  }\n}];"
+      },
+      "id": "31c37c53-7dc1-4e71-826c-d6da980a3b65",
+      "name": "Validate Lead",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.valid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "f65c9336-95dc-4c94-9350-d7c97f1b9d6f",
+      "name": "Is Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.88.49:3001/enrich",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "company_name",
+              "value": "={{ $json.company_name }}"
+            },
+            {
+              "name": "linkedin_url",
+              "value": "={{ $json.linkedin_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "446505d0-285e-4d32-8e07-955d24962b33",
+      "name": "Enrich Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2336,
+        304
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "const lead = $node['Validate Lead'].json;\nconst api = items[0].json;\n\nlet enriched = {\n  company_size: 0,\n  industry: 'Unknown',\n  job_title: 'Unknown',\n  api_source: 'fallback'\n};\n\nif (api && !api.error) {\n  enriched = {\n    company_size: api.company_size || 0,\n    industry: api.industry || 'Unknown',\n    job_title: api.job_title || 'Unknown',\n    api_source: 'api'\n  };\n}\n\nreturn [{ json: { ...lead, ...enriched } }];"
+      },
+      "id": "cbfd1060-ea93-4022-931c-7df5a6164818",
+      "name": "Fallback Enrichment",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const lead = items[0].json;\nlet score = 0;\nconst details = [];\n\nif (lead.company_size > 50) {\n  score += 10;\n  details.push('Company size > 50');\n}\n\nconst targetInds = ['saas', 'technology', 'tech', 'marketing'];\nif (lead.industry && targetInds.some(i => lead.industry.toLowerCase().includes(i))) {\n  score += 15;\n  details.push('Target industry');\n}\n\nconst seniorTitles = ['head', 'director', 'vp', 'ceo', 'cto', 'cfo'];\nif (lead.job_title && seniorTitles.some(t => lead.job_title.toLowerCase().includes(t))) {\n  score += 20;\n  details.push('Senior role');\n}\n\nreturn [{ json: { ...lead, lead_score: score, scoring_details: details } }];"
+      },
+      "id": "8bd2b944-b3f0-4119-890b-8e90a2d95b22",
+      "name": "Calculate Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "value1": "={{ $json.lead_score }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "largerEqual",
+              "value2": 30
+            },
+            {
+              "operation": "largerEqual",
+              "value2": 15
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      },
+      "id": "32c5a06e-59a3-4ac2-bac3-769a1c8e1af8",
+      "name": "Route by Score",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        272
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "becbd232-aaef-40a9-894f-f893968480bd",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        3504,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2bdfa9f1-a331-4e5f-8c48-cb97b62fb920",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "companyName": "={{ $json.company_name }}",
+          "companySize": "={{ $json.company_size }}",
+          "industry": "={{ $json.industry }}",
+          "jobTitle": "={{ $json.job_title }}",
+          "linkedinUrl": "={{ $json.linkedin_url }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        3184,
+        112
+      ],
+      "id": "74197792-9bdf-4e78-9dc4-a3c951642451",
+      "name": "Create or update a contact",
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hhm0a6fRdLXQTlyd",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "18gJQfrpIk79gKzq2C5JT7jgY42B3NBUiQkECJjZtd_o"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "SheetTest",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18gJQfrpIk79gKzq2C5JT7jgY42B3NBUiQkECJjZtd_o/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3216,
+        416
+      ],
+      "id": "9d6af92f-54c3-43ef-90b1-6b271c96660b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Hq8mf7GmvY7lmmDI",
+          "name": "anastasiadulova066@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3376,
+        112
+      ],
+      "id": "84259ef2-c03d-4fd6-a2bb-e492fbc90b65",
+      "name": "Instantly API"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Lead": {
+      "main": [
+        [
+          {
+            "node": "Is Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid?": {
+      "main": [
+        [
+          {
+            "node": "Enrich Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich Data": {
+      "main": [
+        [
+          {
+            "node": "Fallback Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Calculate Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Score": {
+      "main": [
+        [
+          {
+            "node": "Route by Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Score": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create or update a contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a contact": {
+      "main": [
+        [
+          {
+            "node": "Instantly API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Berlin",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "6a4de49c-23a6-4799-b4d6-2cc9a67e7bfd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af95bafb77460a39a122b216b66473d6e1c59ced66c3bba1da34b6e626756ee1"
+  },
+  "id": "cKpyyli9lpRUlDhv",
+  "tags": []
+}
