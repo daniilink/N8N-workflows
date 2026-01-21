@@ -1,5 +1,5 @@
 # N8N-workflows
-# 🚀 n8n Automation Collection
+# n8n Automation Collection
 
 A collection of professional n8n workflows for email processing, lead enrichment, and automated screenshot generation.
 
