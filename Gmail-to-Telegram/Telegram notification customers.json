@@ -4,7 +4,7 @@
     {
       "parameters": {
         "operation": "sendAndWait",
-        "chatId": "472124645",
+        "chatId": "ADMIN_CHAT_ID",
         "message": "=⚠️ Error parse email!\n\n{{ $('Code').item.json.errorMessage }}\n\nInput missing value:",
         "responseType": "customForm",
         "formFields": {
@@ -66,7 +66,7 @@
             },
             {
               "name": "=text",
-              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.YOURDOMAIN.com/webhook/screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
             },
             {
               "name": "parse_mode",
@@ -105,7 +105,7 @@
             },
             {
               "name": "=text",
-              "value": "=📧 New Email to <code>{{ $('Telegram').item.json.data['email:'] }}</code>\nHello, <code>{{ $('Telegram').item.json.data['name:'] }}</code>\nAccept your <code>{{ $('Telegram').item.json.data['amount:'] }}</code> from <code>{{ $('Telegram').item.json.data['sender:'] }}</code>\nTransaction ID: <code>{{ $('Telegram').item.json.data['transactionId:'] }}</code>\nTransaction date: <code>{{ $('Telegram').item.json.data['date:'] }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
+              "value": "=📧 New Email to <code>{{ $('Telegram').item.json.data['email:'] }}</code>\nHello, <code>{{ $('Telegram').item.json.data['name:'] }}</code>\nAccept your <code>{{ $('Telegram').item.json.data['amount:'] }}</code> from <code>{{ $('Telegram').item.json.data['sender:'] }}</code>\nTransaction ID: <code>{{ $('Telegram').item.json.data['transactionId:'] }}</code>\nTransaction date: <code>{{ $('Telegram').item.json.data['date:'] }}</code>\n<a href=\"https://n8n.YOURDOMAIN.com/webhook/screenshot?messageId={{ $('Code').item.json.gmailId }}\">Screenshot PNG🧾</a>"
             },
             {
               "name": "parse_mode",
@@ -296,7 +296,7 @@
             },
             {
               "name": "=text",
-              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.daniilink.com/webhook/email-screenshot?messageId={{ $('Gmail Trigger').first().json.id }}\">Screenshot PNG🧾</a>"
+              "value": "=📧 New Email to <code>{{ $('Code').item.json.email }}</code>\nHello, <code>{{ $('Code').item.json.name }}</code>\nAccept your <code>{{ $('Code').item.json.amount }}</code> from <code>{{ $('Code').item.json.sender }}</code>\nTransaction ID: <code>{{ $('Code').item.json.transactionId }}</code>\nTransaction date: <code>{{ $('Code').item.json.date }}</code>\n<a href=\"https://n8n.YOURDOMAIN.com/webhook/screenshot?messageId={{ $('Gmail Trigger').first().json.id }}\">Screenshot PNG🧾</a>"
             },
             {
               "name": "parse_mode",
@@ -731,7 +731,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Получаем данные, которые пришли из Webhook (Apps Script)\nconst inputData = $input.item.json.body;\n\n// 1. Формируем красивую сумму со значком (например, $190.00 USD)\nlet amountFormatted = null;\nif (inputData.amount && inputData.currency) {\n  let symbol = \"\";\n  if (inputData.currency === 'USD') symbol = \"$\";\n  else if (inputData.currency === 'EUR') symbol = \"€\";\n  else if (inputData.currency === 'GBP') symbol = \"£\";\n  \n  // Если валюта другая, символ оставим пустым или добавим логику\n  amountFormatted = `${symbol}${inputData.amount} ${inputData.currency}`;\n}\n\n// 2. Формируем красивую дату (27.01.2026 17:44:01 -> 27 January 2026 at 17:44:01)\nlet formattedDate = null;\nif (inputData.date) {\n  // Разбиваем строку \"27.01.2026 17:44:01\"\n  const parts = inputData.date.split(' '); // [\"27.01.2026\", \"17:44:01\"]\n  if (parts.length === 2) {\n    const dateParts = parts[0].split('.'); // [\"27\", \"01\", \"2026\"]\n    const timePart = parts[1];\n    \n    if (dateParts.length === 3) {\n      const day = parseInt(dateParts[0], 10);\n      const monthIndex = parseInt(dateParts[1], 10) - 1; // Месяцы в JS от 0 до 11\n      const year = dateParts[2];\n      \n      const monthNames = [\n        \"January\", \"February\", \"March\", \"April\", \"May\", \"June\",\n        \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"\n      ];\n      \n      const monthName = monthNames[monthIndex];\n      formattedDate = `${day} ${monthName} ${year} at ${timePart}`;\n    }\n  }\n}\n\n// 3. Собираем данные\nconst recipientName = inputData.recipientName || null;\nconst sender = inputData.sender || null;\nconst transactionId = inputData.transactionId || null;\nconst email = inputData.recipientEmail || null;\n// В пришедшем вебхуке gmailId не было в примере, но если ты добавишь его в скрипт, он появится здесь.\n// Пока ставим null или берем из body, если он там появится.\nconst gmailId = inputData.gmailId || null; \n\n// 4. ПРОВЕРКИ (сохраняем твою логику ошибок)\nconst errors = [];\nif (!recipientName) errors.push(\"name:\");\nif (!sender) errors.push(\"sender:\");\nif (!amountFormatted) errors.push(\"amount:\");\nif (!transactionId) errors.push(\"txID:\");\nif (!formattedDate) errors.push(\"date:\");\nif (!email) errors.push(\"email:\");\n\nconst isComplete = errors.length === 0;\n\n// 5. Возвращаем результат в нужном формате\nreturn {\n  name: recipientName,\n  sender: sender,\n  amount: amountFormatted,\n  transactionId: transactionId,\n  date: formattedDate,\n  email: email,\n  gmailId: gmailId,\n  isComplete: isComplete,\n  errors: errors,\n  errorMessage: errors.join(\"\\n\")\n};"
+        "jsCode": "// Data from Webhook (Apps Script) PLEASE REWRITE THIS CODE NODE IF YOU USE GMAIL TRIGGER \nconst inputData = $input.item.json.body;\n\n// 1. Formatting amount (e.g. $190.00 USD)\nlet amountFormatted = null;\nif (inputData.amount && inputData.currency) {\n  let symbol = \"\";\n  if (inputData.currency === 'USD') symbol = \"$\";\n  else if (inputData.currency === 'EUR') symbol = \"€\";\n  else if (inputData.currency === 'GBP') symbol = \"£\";\n  \n  // If currency is not defined - null \n  amountFormatted = `${symbol}${inputData.amount} ${inputData.currency}`;\n}\n\n// 2. Formatting date (27.01.2026 17:44:01 -> 27 January 2026 at 17:44:01)\nlet formattedDate = null;\nif (inputData.date) {\n  \"27.01.2026 17:44:01\"\n  const parts = inputData.date.split(' '); // [\"27.01.2026\", \"17:44:01\"]\n  if (parts.length === 2) {\n    const dateParts = parts[0].split('.'); // [\"27\", \"01\", \"2026\"]\n    const timePart = parts[1];\n    \n    if (dateParts.length === 3) {\n      const day = parseInt(dateParts[0], 10);\n      const monthIndex = parseInt(dateParts[1], 10) - 1; \n      const year = dateParts[2];\n      \n      const monthNames = [\n        \"January\", \"February\", \"March\", \"April\", \"May\", \"June\",\n        \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"\n      ];\n      \n      const monthName = monthNames[monthIndex];\n      formattedDate = `${day} ${monthName} ${year} at ${timePart}`;\n    }\n  }\n}\n\n// 3. Collectiong data \nconst recipientName = inputData.recipientName || null;\nconst sender = inputData.sender || null;\nconst transactionId = inputData.transactionId || null;\nconst email = inputData.recipientEmail || null;\n .\nconst gmailId = inputData.gmailId || null; \n\n// 4. Checking \nconst errors = [];\nif (!recipientName) errors.push(\"name:\");\nif (!sender) errors.push(\"sender:\");\nif (!amountFormatted) errors.push(\"amount:\");\nif (!transactionId) errors.push(\"txID:\");\nif (!formattedDate) errors.push(\"date:\");\nif (!email) errors.push(\"email:\");\n\nconst isComplete = errors.length === 0;\n\n// 5. Returning result \n return {\n  name: recipientName,\n  sender: sender,\n  amount: amountFormatted,\n  transactionId: transactionId,\n  date: formattedDate,\n  email: email,\n  gmailId: gmailId,\n  isComplete: isComplete,\n  errors: errors,\n  errorMessage: errors.join(\"\\n\")\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -765,7 +765,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ВАЖНО: Этот скрипт будет работать правильно, ТОЛЬКО если \n// в Docker-compose прописан TZ=Europe/Kyiv\n// Он считает, что и дата в письме, и время сервера — находятся в ОДНОМ часовом поясе.\n\nconst sourceNodeName = 'Webhook'; \n\ntry {\n  // 1. Проверяем вход\n  if (!$(sourceNodeName).first()) {\n    throw new Error(`Нода \"${sourceNodeName}\" не найдена.`);\n  }\n\n  const item = $(sourceNodeName).first();\n  const json = item.json;\n  const body = json.body || {};\n  \n  // 2. Ищем дату\n  let rawDate = body.date || json.date || body.timestamp || body.time;\n  if (!rawDate) throw new Error(\"Дата не найдена\");\n  rawDate = rawDate.toString(); \n\n  // 3. ПАРСИНГ (Без указания зоны — берем системную зону n8n)\n  // DateTime.fromFormat сам поймет, что это \"местное\" время сервера\n  let startTime = DateTime.fromFormat(rawDate, 'dd.MM.yyyy HH:mm:ss');\n\n  if (!startTime.isValid) {\n     // Если вдруг формат другой (ISO), пробуем его\n     startTime = DateTime.fromISO(rawDate);\n  }\n\n  // 4. Текущее время (системное время сервера)\n  const endTime = DateTime.now();\n\n  // 5. Считаем разницу\n  const diff = endTime.diff(startTime, ['minutes', 'seconds']).toObject();\n  \n  // Math.abs используем, чтобы не было минусов, если время сервера чуть отстало\n  const minutes = Math.floor(Math.abs(diff.minutes || 0));\n  const seconds = Math.floor(Math.abs(diff.seconds || 0));\n\n  const resultString = `${minutes}:${seconds.toString().padStart(2, '0')}`;\n\n  return {\n    json: {\n      duration: resultString,\n      debug: {\n        input_date: rawDate,\n        parsed_start: startTime.toString(), // Время письма (как понял сервер)\n        server_now: endTime.toString()      // Время \"сейчас\"\n      }\n    }\n  };\n\n} catch (error) {\n  return { json: { error: error.message } };\n}"
+        "jsCode": "// IMPORTANT: This script will work correctly only if docker-compose.yml contains TZ=Europe/Kyiv\n// Script thinking he is in same time zone with email.\n\nconst sourceNodeName = 'Webhook'; \n\ntry {\n  \n  if (!$(sourceNodeName).first()) {\n    throw new Error(`Node \"${sourceNodeName}\" not found.`);\n  }\n\n  const item = $(sourceNodeName).first();\n  const json = item.json;\n  const body = json.body || {};\n  \n  // 2. Searching date\n  let rawDate = body.date || json.date || body.timestamp || body.time;\n  if (!rawDate) throw new Error(\"Date not found\");\n  rawDate = rawDate.toString(); \n  let startTime = DateTime.fromFormat(rawDate, 'dd.MM.yyyy HH:mm:ss');\n\n  if (!startTime.isValid) {\n     // If format another (ISO), trying this\n     startTime = DateTime.fromISO(rawDate);\n  }\n\n  // 4. Time now(server time)\n  const endTime = DateTime.now();\n\n  // 5. Difference time\n  const diff = endTime.diff(startTime, ['minutes', 'seconds']).toObject();\n  \n  // Math.abs use\n  const minutes = Math.floor(Math.abs(diff.minutes || 0));\n  const seconds = Math.floor(Math.abs(diff.seconds || 0));\n\n  const resultString = `${minutes}:${seconds.toString().padStart(2, '0')}`;\n\n  return {\n    json: {\n      duration: resultString,\n      debug: {\n        input_date: rawDate,\n        parsed_start: startTime.toString(), // Time of email\n        server_now: endTime.toString()      // Time \"now\"\n      }\n    }\n  };\n\n} catch (error) {\n  return { json: { error: error.message } };\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -877,7 +877,7 @@
         "json": {
           "headers": {
             "connection": "keep-alive",
-            "host": "n8n.daniilink.com",
+            "host": "n8n.YOURDOMAIN.com",
             "x-forwarded-scheme": "https",
             "x-forwarded-proto": "https",
             "x-forwarded-for": "192.168.88.1",
@@ -890,12 +890,12 @@
           "params": {},
           "query": {},
           "body": {
-            "transactionId": "9G101585PN777811P",
+            "transactionId": "**************",
             "amount": "190.00",
             "currency": "USD",
-            "sender": "Vladyslav Zhukovskyi",
-            "recipientName": "Ruslana Zakovorotna",
-            "recipientEmail": "zakovorotnarus@inbox.lv",
+            "sender": "Your Sender",
+            "recipientName": "Your recipient",
+            "recipientEmail": "email@gmail.com",
             "date": "31.01.2026 13:56:10",
             "subject": "You've got money",
             "gmailId": "19c13e926f61e83c"
